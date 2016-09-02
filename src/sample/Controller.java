@@ -28,6 +28,8 @@ public class Controller implements Initializable{
 
     String name;
 
+    UserList myUser = new UserList();
+
     ObservableList<ToDoItem> todoItems = FXCollections.observableArrayList();//factory method//why interfaces are so powerful
     //we are getting the interface only even though the object being returned iis of a different type, but implements the interface
 
@@ -40,7 +42,7 @@ public class Controller implements Initializable{
         boolean returningCustomer = isCustomerReturning(nameInput);
 
         User currentUser = new User();
-        currentUser.setName(nameInput);
+        //currentUser.setName(nameInput);
         name = nameInput;
         readToDoList();
 //        if (returningCustomer == true)
@@ -167,7 +169,7 @@ public class Controller implements Initializable{
         return restoredTD;
     }
 
-    public String jsonSave(ToDoItem todoToSave) {
+    public String jsonSave(ToDoItem todoToSave) {//should be called json serializable
         JsonSerializer jsonSerializer = new JsonSerializer().deep(true);
         String jsonString = jsonSerializer.serialize(todoToSave);//get string back of the object
 
@@ -220,8 +222,18 @@ public class Controller implements Initializable{
     private void writeToDoList()
     {
         try {
+            myUser.toDoList = new ArrayList<>();
+            //loop through the observable list and add the to do items 1 by 1 to the arraylist
+            //myUser.toDoList = (ArrayList<ToDoItem>) todoItems;
+            for (ToDoItem currentItem : todoItems)
+            {
+                //.add(currentItem);
+                myUser.toDoList.add(currentItem);
+            }
             JsonSerializer jsonSerializer = new JsonSerializer().deep(true);
-            String jsonString = jsonSerializer.serialize(todoItems);//get string back of the object
+            //String jsonString = jsonSerializer.serialize(todoItems);//get string back of the object
+            // change the todoItems being passed to the .serialize method to an insance of the User class which will contain the arrayList as a member variable
+            String jsonString = jsonSerializer.serialize(myUser);
             FileWriter writer = new FileWriter(name + ".json");
             writer.write(jsonString);
             writer.flush();
@@ -233,14 +245,14 @@ public class Controller implements Initializable{
         }
         //return jsonString;
     }
-    private void readToDoList()
+    private void readToDoList()//should probably be broken into 2 methods
     {
         //BufferedReader reader = new BufferedReader(name + ".json");
 
         try
         {
             BufferedReader br = new BufferedReader(new FileReader(name + ".json"));
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();//understanding the StringBuilder
             String line = br.readLine();
 
             while (line != null) {
@@ -253,18 +265,26 @@ public class Controller implements Initializable{
 
             //reader.
             JsonParser toDoItemParser = new JsonParser();
-            ArrayList tempList = toDoItemParser.parse(sb.toString(), ArrayList.class);//.class represents the blueprint of the class not an instance
-            System.out.println(tempList);
-            for (Object obj: tempList)
+            //ArrayList tempList = toDoItemParser.parse(sb.toString(), ArrayList.class);
+            //.class represents the blueprint of the class not an instance//this will be returned to a container item(User)
+            //with instantiated array list member variable rather than directly to an array list as seen here...
+            myUser = toDoItemParser.parse(sb.toString(), UserList.class);
+            System.out.println(myUser);
+            for (ToDoItem currentItem : myUser.toDoList)
             {
-
-                System.out.println(obj);
-                Map map = (Map)obj;
-                String text = (String)map.get("todoText");
-                boolean done = (boolean)map.get("done");
-                ToDoItem item = new ToDoItem(text, done);
-                todoItems.add(item);
+                //ToDoItem item = new ToDoItem(text, done);
+                todoItems.add(currentItem);
             }
+//            for (Object obj: tempList)
+//            {
+//
+//                System.out.println(obj);
+//                Map map = (Map)obj;
+//                String text = (String)map.get("todoText");
+//                boolean done = (boolean)map.get("done");
+//                ToDoItem item = new ToDoItem(text, done);
+ //               todoItems.add(item);
+//            }
 
             //return item;
         }
@@ -273,5 +293,26 @@ public class Controller implements Initializable{
             //e.printStackTrace();
         }
     }
+    private static class UserList {
+        //private String name;
+        public static ArrayList<ToDoItem> toDoList = new ArrayList<>();
+
+//    public String getName() {
+//        return name;
+//    }
+
+//    public void setName(String name) {
+//        this.name = name;
+//    }
+
+        public ArrayList<ToDoItem> getToDoList() {
+            return toDoList;
+        }
+
+        public void setToDoList(ArrayList<ToDoItem> toDoListy) {
+            toDoList = toDoListy;
+        }
+    }
+
 
 }

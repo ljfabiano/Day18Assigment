@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by jfabiano on 8/31/2016.
  */
 
-public class ToDoItem implements Serializable {
+public class ToDoItem implements Serializable {//this only needs to implement serializable if we are using java serialization. with json we dont need it.
 
     private String todoText;
     private boolean done;

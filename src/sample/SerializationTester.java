@@ -60,7 +60,7 @@ public class SerializationTester {
         return restoredTD;
     }
 
-    public String jsonSave(ToDoItem todoToSave) {
+    public String jsonSave(ToDoItem todoToSave) {//the method generates a json string which needs to be saved to file
         JsonSerializer jsonSerializer = new JsonSerializer().deep(true);
         String jsonString = jsonSerializer.serialize(todoToSave);//get string back of the object
 
